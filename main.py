@@ -190,6 +190,10 @@ def ll(tableDict, input, operators, actions):
                 print("accepted")
                 loopBool = False
                 break
+            if(stackV == "$" and inpV != "$"):
+                print("reject")
+                loopBool = False
+                break
             while (inpV not in operators):
                 i = 1
                 if(len(inpV) == maxOperatorLength and inpV not in operators):

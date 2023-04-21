@@ -96,6 +96,28 @@ def processInput(inputs):
         inputs[i] = inputs[i].rstrip()
     return inputs
 
+def parseOperators(FILE_LL):
+    llFile = open(FILE_LL, "r")
+    llData = llFile.readlines()
+    llFile.close()
+    ops = llData[0].rstrip().split(";")
+    operators = []
+    for i in range(1, len(ops)):
+        operator = ops[i].replace(" ", "")
+        operators.append(operator)
+    
+    return operators
+
+def parseActions(FILE_LL):
+    llFile = open(FILE_LL, "r")
+    llData = llFile.readlines()
+    llFile.close()
+    actions = []
+    for i in range(1, len(llData)):
+        actions.append(llData[i].split(";")[0].replace(" ", ""))
+    return actions
+
+
 def parseTable(FILE_LL):
     tableDict = {}
     llFile = open(FILE_LL, "r")
@@ -104,28 +126,128 @@ def parseTable(FILE_LL):
     for i in range(len(llData)):
         llData[i] = llData[i].rstrip()
         llData[i] = llData[i].split(";")
-        
-        
+    
+    operatorList = []
     # prepare table as dict e.g. Eid = E -> TA 
     for i in range(1, len(llData)):
         for j in range(1, len(llData[0])):
             if((not llData[i][j].isspace()) and llData[i][j] != ""):
                 tableDict[(llData[i][0] + llData[0][j]).replace(" ", "")] = llData[i][j].strip()
+    
     return tableDict
 
 
 
-def ll(tableDict, inputs):
+def derivate(tableDict, inputs, operators, actions):
     for i in range(len(inputs)):
         if(inputs[i][:2] == "LL"):
             input = inputs[i].split(";")[1]
-            # TODO : call LL function
+            ll(tableDict, input, operators, actions)
 
+def compare(smaller, bigger, numberOfChar):
+    for i in range(numberOfChar):
+        if(smaller[i] != bigger[i]):
+            return False
+    return True
+         
 
+def ll(tableDict, input, operators, actions):
+    no = 1
+    stack = []
+    stack.append('$')
+    
+    print(no)
+    print(stack)
+    print(input)
+
+    firstAction = list(tableDict.values())[0]
+    print(firstAction)
+    actionDetails = firstAction.split("->")[1]
+    actionLen = len(actionDetails)
+    maxOperatorLength = 0
+    for i in range(len(operators)):
+        if((currentOpLen := len(operators[i])) > maxOperatorLength):
+            maxOperatorLength = currentOpLen
+    for i in range(actionLen):
+        stack.append(actionDetails[actionLen - i - 1])
+    
+    loopBool = True
+    while loopBool:
+        no += 1
+        print(no)
+        print(stack)
+        print(input)
+
+        
+        
+        
+        
+        # checking input value to validate
+        while True:
+            stackV = stack.pop()
+            inpV = input[0]
+            if(inpV == "$" and stackV == "$"):
+                print("accepted")
+                loopBool = False
+                break
+            while (inpV not in operators):
+                i = 1
+                if(len(inpV) == maxOperatorLength and inpV not in operators):
+                    print("reject")
+                    return
+                else:
+                    inpV += input[i]
+            # checking stack value to validate
+            while True:
+                if(stackV in actions):
+                    break
+                elif(stackV == inpV):
+                    break
+                elif(stackV > inpV and stackV not in actions):
+                    print("reject")
+                    return
+                else:
+                    stackV += stack.pop()
+                
+            if(inpV in operators and stackV in operators):
+                input = input[len(inpV):]
+            else:
+                break
+        
+        
+
+        if(inpV in operators and stackV in operators and inpV != stackV):
+            print("rejected")
+            return
+        #
+    
+            
+        if(inpV in operators and stackV in actions):
+            dictKey = stackV + inpV
+            if(dictKey not in list(tableDict.keys())):
+                print("reject")
+                break
+            action = tableDict[dictKey]
+            
+            print(action)
+            actionD = action.split("->")[1]
+            if(actionD != "ϵ"):
+                
+                actionList = []
+                for i in range(len(actionD)):
+                    if(actionD[i] in actions or actionD[i] in operators):
+                        actionList.append(actionD[i])
+                    else:
+                        for j in range(1, maxOperatorLength):
+                            if(isOp := actionD[0:i + j]) in operators:
+                                actionList.append(isOp)
+                for i in range((actionListLen := len(actionList))):
+                    stack.append(actionList[actionListLen - i - 1])
 
 postProcessInput = processInput(inputs)
+operators = parseOperators(FILE_LL)
+actions = parseActions(FILE_LL)
+# actionname + operator = action
 tableDict = parseTable(FILE_LL)
-ll(tableDict, inputs)
-print(tableDict)
-
+derivate(tableDict, inputs, operators, actions)
 

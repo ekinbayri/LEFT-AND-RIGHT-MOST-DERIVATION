@@ -1,5 +1,6 @@
 FILE_LR = "lr.txt"
 FILE_INPUT = "input.txt"
+FILE_LL = "ll.txt"
 
 f = open(FILE_LR, "r")
 data = f.readline()
@@ -85,4 +86,46 @@ while loopBool:
                 print("REJECTED (can't apply rule)")
 
                 break
+ 
+
+# LL part
+
+def processInput(inputs):
+    for i in range(len(inputs)):
+        inputs[i] = inputs[i].replace(" ", "")
+        inputs[i] = inputs[i].rstrip()
+    return inputs
+
+def parseTable(FILE_LL):
+    tableDict = {}
+    llFile = open(FILE_LL, "r")
+    llData = llFile.readlines()
+    llFile.close()
+    for i in range(len(llData)):
+        llData[i] = llData[i].rstrip()
+        llData[i] = llData[i].split(";")
+        
+        
+    # prepare table as dict e.g. Eid = E -> TA 
+    for i in range(1, len(llData)):
+        for j in range(1, len(llData[0])):
+            if((not llData[i][j].isspace()) and llData[i][j] != ""):
+                tableDict[(llData[i][0] + llData[0][j]).replace(" ", "")] = llData[i][j].strip()
+    return tableDict
+
+
+
+def ll(tableDict, inputs):
+    for i in range(len(inputs)):
+        if(inputs[i][:2] == "LL"):
+            input = inputs[i].split(";")[1]
+            # TODO : call LL function
+
+
+
+postProcessInput = processInput(inputs)
+tableDict = parseTable(FILE_LL)
+ll(tableDict, inputs)
+print(tableDict)
+
 

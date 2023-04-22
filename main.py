@@ -152,24 +152,17 @@ def compare(smaller, bigger, numberOfChar):
          
 
 def ll(tableDict, input, operators, actions):
-    no = 1
+    no = 0
     stack = []
     stack.append('$')
     
     print(no)
     print(stack)
     print(input)
-
-    firstAction = list(tableDict.values())[0]
-    print(firstAction)
-    actionDetails = firstAction.split("->")[1]
-    actionLen = len(actionDetails)
     maxOperatorLength = 0
     for i in range(len(operators)):
         if((currentOpLen := len(operators[i])) > maxOperatorLength):
             maxOperatorLength = currentOpLen
-    for i in range(actionLen):
-        stack.append(actionDetails[actionLen - i - 1])
     
     loopBool = True
     while loopBool:
@@ -177,14 +170,13 @@ def ll(tableDict, input, operators, actions):
         print(no)
         print(stack)
         print(input)
-
-        
-        
-        
         
         # checking input value to validate
         while True:
-            stackV = stack.pop()
+            if (no != 1):
+                stackV = stack.pop()
+            else:
+                stackV = actions[0]
             inpV = input[0]
             if(inpV == "$" and stackV == "$"):
                 print("accepted")
@@ -223,7 +215,6 @@ def ll(tableDict, input, operators, actions):
         if(inpV in operators and stackV in operators and inpV != stackV):
             print("rejected")
             return
-        #
     
             
         if(inpV in operators and stackV in actions):

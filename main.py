@@ -151,6 +151,7 @@ def derivate(tableDict, inputs, operators, actions):
     for i in range(len(inputs)):
         if(inputs[i][:2] == "LL"):
             input = inputs[i].split(";")[1]
+            print("\nProcessing input string", input, "for LL(1) parsing table.")
             ll(tableDict, input, operators, actions)
 
 def compare(smaller, bigger, numberOfChar):

@@ -187,17 +187,17 @@ def ll(tableDict, input, operators, actions):
                 stackV = actions[0]
             inpV = input[0]
             if(inpV == "$" and stackV == "$"):
-                print("accepted")
+                print("ACCEPTED")
                 loopBool = False
                 break
             if(stackV == "$" and inpV != "$"):
-                print("reject")
+                print("REJECTED STACK IS EMPTY BUT INPUT IS NOT")
                 loopBool = False
                 break
             while (inpV not in operators):
                 i = 1
                 if(len(inpV) == maxOperatorLength and inpV not in operators):
-                    print("reject")
+                    print("REJECTED INPUT IS NOT VALID")
                     return
                 else:
                     inpV += input[i]
@@ -208,7 +208,7 @@ def ll(tableDict, input, operators, actions):
                 elif(stackV == inpV):
                     break
                 elif(stackV > inpV and stackV not in actions):
-                    print("reject")
+                    print("REJECTED STACK IS NOT VALID")
                     return
                 else:
                     stackV += stack.pop()
@@ -220,14 +220,14 @@ def ll(tableDict, input, operators, actions):
 
 
         if(inpV in operators and stackV in operators and inpV != stackV):
-            print("rejected")
+            print("REJECTED STACK AND INPUT ARE DIFFERENT AND BOTH ARE OPERATORS")
             return
 
 
         if(inpV in operators and stackV in actions):
             dictKey = stackV + inpV
             if(dictKey not in list(tableDict.keys())):
-                print("reject")
+                print("REJECTED INVALID TABLE INPUT")
                 break
             action = tableDict[dictKey]
 

@@ -157,7 +157,6 @@ def parseTable(FILE_LL):
 
 
 def derivate(tableDict, inputs,  postProcessInput, operators, actions, variables, states):
-    print(inputs)
     for i in range(len(inputs)):
         if(postProcessInput[i][:2] == "LL"):
             input = postProcessInput[i].split(";")[1]

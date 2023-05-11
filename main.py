@@ -40,7 +40,7 @@ for i in range(len(inputs)):
         print("\nProcessing input string", currentInput, "for LR(1) parsing table.")
         print("NO    |    STATE STACK    |    READ    |    INPUT    |    ACTION")
     indexer = 0
-    stateDict = {"blank": 1}
+
     stateStack = [1]
     counter = 1
     loopVar = 0
@@ -56,7 +56,7 @@ for i in range(len(inputs)):
             if variables[i] == currentVariable:
                 selector = i + 1
                 break
-        if currentState[selector] == "       ":
+        if currentState[selector][0] == ' ':
             print("REJECTED (", currentState[0], "does not have action/step for", currentVariable, ")")
             loopBool = False
         else:
@@ -64,7 +64,7 @@ for i in range(len(inputs)):
             if currentState[selector].rfind("_") != -1:
                 currentState[selector] = currentState[selector][currentState[selector].rfind("_") + 1:]
                 loopVar = int(currentState[selector]) - 1
-                stateDict[currentVariable] = loopVar + 1
+
                 stateStack.append(loopVar + 1)
                 print("Shift to", currentState[selector])
             elif currentState[selector] == "Accept":
@@ -80,11 +80,9 @@ for i in range(len(inputs)):
                 if index != -1:
                     currentInput = currentInput.replace(rightSide, leftSide)
                     if len(rightSide) == 1:
-                        stateDict.pop(rightSide)
                         stateStack.pop()
                     else:
                         for i in rightSide:
-                            stateDict.pop(i)
                             stateStack.pop()
 
                     indexer = currentInput.rfind(leftSide)

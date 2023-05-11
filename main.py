@@ -2,107 +2,118 @@ FILE_LR = "lr.txt"
 FILE_INPUT = "input.txt"
 FILE_LL = "ll.txt"
 
-f = open(FILE_LR, "r")
-data = f.readline()
-data = data.strip()
-data = data.split(";")
+def main():
+    f = open(FILE_LR, "r")
+    data = f.readline()
+    data = data.strip()
+    data = data.split(";")
 
-variables = f.readline()
-variables = variables.split(";")
-for i in range(len(variables)):
-    variables[i] = variables[i].strip()
+    variables = f.readline()
+    variables = variables.split(";")
+    for i in range(len(variables)):
+        variables[i] = variables[i].strip()
 
-variables.pop(0)
-stateNum = len(f.readlines())
-f.close()
-f2 = open(FILE_LR, "r")
-f2.readline()
-f2.readline()
-states = f2.readlines()
-f2.close()
-loopBool = True
+    variables.pop(0)
+    stateNum = len(f.readlines())
+    f.close()
+    f2 = open(FILE_LR, "r")
+    f2.readline()
+    f2.readline()
+    states = f2.readlines()
+    f2.close()
+    
+    f3 = open(FILE_INPUT, "r")
+    inputs = f3.readlines()
+    f3.close()
 
+    postProcessInput = processInput(inputs)
+    
+    operators = parseOperators(FILE_LL)
+    actions = parseActions(FILE_LL)
+    # actionname + operator = action
+    tableDict = parseTable(FILE_LL)
+    derivate(tableDict, inputs,  postProcessInput, operators, actions, variables, states)
 
-f3 = open(FILE_INPUT, "r")
-inputs = f3.readlines()
-f3.close()
-
-
-for i in range(len(inputs)):
-    currentInputLine = inputs[i].split()
-    if currentInputLine[0] == "LR":
-        currentInput = currentInputLine[1]
-        currentInput = currentInput[1:]
-        loopBool = True
-    else:
-        loopBool = False
-    if loopBool:
-        print("\nProcessing input string", currentInput, "for LR(1) parsing table.")
-        print("NO    |    STATE STACK    |    READ    |    INPUT    |    ACTION")
-    indexer = 0
-
-    stateStack = [1]
-    counter = 1
-    loopVar = 0
-    while loopBool:
-        currentState = states[loopVar].split(";")
-        currentVariable = currentInput[indexer]
-        print(counter,"    |", stateStack, (" " * (16 - (len(stateStack) * 3))), "|     ", currentVariable, "    |    ", currentInput,
-              (" " * (4 - (len(currentInput)))), "  | ", end=" ")
-        indexer += 1
-        selector = -1
-        counter += 1
-        for i in range(len(variables)):
-            if variables[i] == currentVariable:
-                selector = i + 1
-                break
-        if currentState[selector][0] == ' ':
-            print("REJECTED (", currentState[0], "does not have action/step for", currentVariable, ")")
-            loopBool = False
+def lr(inputs, variables, states):
+    loopBool = True
+    for i in range(len(inputs)):
+        currentInputLine = inputs[i].split()
+        if currentInputLine[0] == "LR":
+            currentInput = currentInputLine[1]
+            currentInput = currentInput[1:]
+            loopBool = True
         else:
+            loopBool = False
+        if loopBool:
+            print("\nProcessing input string", currentInput, "for LR(1) parsing table.")
+            print("NO    |    STATE STACK    |    READ    |    INPUT    |    ACTION")
+        indexer = 0
 
-            if currentState[selector].rfind("_") != -1:
-                currentState[selector] = currentState[selector][currentState[selector].rfind("_") + 1:]
-                loopVar = int(currentState[selector]) - 1
-
-                stateStack.append(loopVar + 1)
-                print("Shift to", currentState[selector])
-            elif currentState[selector] == "Accept":
-                print("ACCEPTED")
-                break
-            else:
-                rightSide = currentState[selector][currentState[selector].rfind("->") + 2:]
-                rightSide = rightSide.strip()
-
-                leftSide = currentState[selector][0:currentState[selector].rfind("->")]
-                print("Reverse", leftSide, "->", rightSide)
-                index = currentInput.rfind(rightSide)
-                if index != -1:
-                    currentInput = currentInput.replace(rightSide, leftSide)
-                    if len(rightSide) == 1:
-                        stateStack.pop()
-                    else:
-                        for i in rightSide:
-                            stateStack.pop()
-
-                    indexer = currentInput.rfind(leftSide)
-
-                    loopVar = stateStack.pop() - 1
-                    stateStack.append(loopVar + 1)
-
-                else:
-                    print("REJECTED (can't apply rule)")
-
+        stateStack = [1]
+        counter = 1
+        loopVar = 0
+        while loopBool:
+            currentState = states[loopVar].split(";")
+            currentVariable = currentInput[indexer]
+            print(counter,"    |", stateStack, (" " * (16 - (len(stateStack) * 3))), "|     ", currentVariable, "    |    ", currentInput,
+                (" " * (4 - (len(currentInput)))), "  | ", end=" ")
+            indexer += 1
+            selector = -1
+            counter += 1
+            for i in range(len(variables)):
+                if variables[i] == currentVariable:
+                    selector = i + 1
                     break
+            if currentState[selector][0] == ' ':
+                print("REJECTED (", currentState[0], "does not have action/step for", currentVariable, ")")
+                loopBool = False
+            else:
+
+                if currentState[selector].rfind("_") != -1:
+                    currentState[selector] = currentState[selector][currentState[selector].rfind("_") + 1:]
+                    loopVar = int(currentState[selector]) - 1
+
+                    stateStack.append(loopVar + 1)
+                    print("Shift to", currentState[selector])
+                elif currentState[selector] == "Accept":
+                    print("ACCEPTED")
+                    break
+                else:
+                    rightSide = currentState[selector][currentState[selector].rfind("->") + 2:]
+                    rightSide = rightSide.strip()
+
+                    leftSide = currentState[selector][0:currentState[selector].rfind("->")]
+                    print("Reverse", leftSide, "->", rightSide)
+                    index = currentInput.rfind(rightSide)
+                    if index != -1:
+                        currentInput = currentInput.replace(rightSide, leftSide)
+                        if len(rightSide) == 1:
+                            stateStack.pop()
+                        else:
+                            for i in rightSide:
+                                stateStack.pop()
+
+                        indexer = currentInput.rfind(leftSide)
+
+                        loopVar = stateStack.pop() - 1
+                        stateStack.append(loopVar + 1)
+
+                    else:
+                        print("REJECTED (can't apply rule)")
+
+                        break
+
+
 
 
 # LL part
 
 def processInput(inputs):
+    postProcessInput = []
     for i in range(len(inputs)):
-        inputs[i] = inputs[i].replace(" ", "")
-        inputs[i] = inputs[i].rstrip()
-    return inputs
+        postProcessInput.append(inputs[i].replace(" ", "").rstrip())
+        
+    return postProcessInput
 
 def parseOperators(FILE_LL):
     llFile = open(FILE_LL, "r")
@@ -145,12 +156,18 @@ def parseTable(FILE_LL):
     return tableDict
 
 
-def derivate(tableDict, inputs, operators, actions):
+def derivate(tableDict, inputs,  postProcessInput, operators, actions, variables, states):
+    print(inputs)
     for i in range(len(inputs)):
-        if(inputs[i][:2] == "LL"):
-            input = inputs[i].split(";")[1]
+        if(postProcessInput[i][:2] == "LL"):
+            input = postProcessInput[i].split(";")[1]
             print("\nProcessing input string", input, "for LL(1) parsing table.")
             ll(tableDict, input, operators, actions)
+        elif(postProcessInput[i][:2] == "LR"):
+            inputToList = []
+            inputToList.append(inputs[i])
+            lr(inputToList, variables, states)
+            
 
 def compare(smaller, bigger, numberOfChar):
     for i in range(numberOfChar):
@@ -245,10 +262,5 @@ def ll(tableDict, input, operators, actions):
                 for i in range((actionListLen := len(actionList))):
                     stack.append(actionList[actionListLen - i - 1])
 
-postProcessInput = processInput(inputs)
-operators = parseOperators(FILE_LL)
-actions = parseActions(FILE_LL)
-# actionname + operator = action
-tableDict = parseTable(FILE_LL)
-derivate(tableDict, inputs, operators, actions)
 
+main()
